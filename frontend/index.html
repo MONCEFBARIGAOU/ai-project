@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MyFutureDrive AI — Copilot</title>
+    <link rel="stylesheet" href="./css/app.css"/>
+</head>
+
+<body>
+<div class="wrap">
+    <div class="shell">
+
+        <!-- =============== SIDEBAR =============== -->
+        <aside class="side" id="sidebar">
+            <div class="sideTop">
+                <div class="brand">
+                    <div class="brandLogo">MF</div>
+                    <div class="brandTxt">
+                        <div class="brandName">MyFutureDrive AI</div>
+                        <div class="brandSub">Sales Copilot • Vehicle Intelligence</div>
+                    </div>
+                </div>
+
+                <button class="iconBtn" id="toggleSideBtn" title="Réduire la sidebar">⟨⟨</button>
+            </div>
+
+            <div class="sideActions">
+                <button class="btnPrimary" id="newSessionBtn">+ New Session</button>
+                <button class="btnGhost" id="deleteSessionBtn">Delete</button>
+            </div>
+
+            <div class="nav">
+                <div class="navTitle">Workspace</div>
+                <button class="navItem active" data-tab="sessions">💬 Sessions</button>
+                <button class="navItem" data-tab="leads">🧩 Leads</button>
+                <button class="navItem" data-tab="opps">📈 Opportunities</button>
+                <button class="navItem" data-tab="compare">⚖️ Comparaisons</button>
+                <button class="navItem" data-tab="history">🕓 Historique</button>
+            </div>
+
+            <div class="sideSection">
+                <div class="sideSectionTitle">Sessions</div>
+                <div id="sessionList" class="sessionList"></div>
+            </div>
+
+            <div class="sideFooter">
+                <div class="statusLine">
+                    <span class="dot" id="apiDot"></span>
+                    <span id="apiText">API: OK</span>
+                </div>
+                <div class="miniHint">Tip: écris “peu importe” si tu ne veux pas préciser un critère.</div>
+            </div>
+        </aside>
+
+        <!-- =============== MAIN =============== -->
+        <main class="main">
+
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbarLeft">
+                    <button class="iconBtn mobileOnly" id="openSideBtn" title="Ouvrir la sidebar">☰</button>
+                    <div>
+                        <div class="pageTitle">Copilot Dashboard</div>
+                        <div class="pageSub">Assistant IA de décision commerciale — dialogue intelligent + scoring multi-critères</div>
+                    </div>
+                </div>
+
+                <div class="topbarRight">
+                    <div class="pill" id="modelPill">LLM: pending</div>
+                    <button class="btnGhost" id="resetPrefsBtn">Reset prefs</button>
+                    <button class="btnGhost" id="exportBtn">Export</button>
+                </div>
+            </header>
+
+            <!-- Insights -->
+            <section class="insights">
+                <div class="insightCard">
+                    <div class="insightHead">
+                        <div class="insightTitle">🧠 Résumé IA</div>
+                        <div class="insightMeta" id="insightMeta">Session: —</div>
+                    </div>
+
+                    <div class="insightBody">
+                        <div class="insightBlock">
+                            <div class="kTitle">Ce que j’ai compris</div>
+                            <div class="kText" id="kUnderstood">Commence par décrire ton besoin (ville, budget, type…).</div>
+                        </div>
+
+                        <div class="insightBlock">
+                            <div class="kTitle">Manques (optionnels)</div>
+                            <div class="chips" id="missingChips"></div>
+                        </div>
+
+                        <div class="insightBlock">
+                            <div class="kTitle">Conseils Copilot</div>
+                            <div class="kText" id="kTips">Je peux affiner si tu veux, mais je peux aussi proposer des véhicules sans tout préciser.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpiRow">
+                    <div class="kpi">
+                        <div class="kpiLabel">Résultats</div>
+                        <div class="kpiValue" id="kpiResults">0</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpiLabel">Top score</div>
+                        <div class="kpiValue" id="kpiTopScore">—</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpiLabel">Budget</div>
+                        <div class="kpiValue" id="kpiBudget">—</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpiLabel">Ville</div>
+                        <div class="kpiValue" id="kpiCity">—</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panels -->
+            <section class="panels">
+
+                <!-- Chat panel -->
+                <div class="panel chatPanel">
+                    <div class="panelHead">
+                        <div class="panelTitle">💬 Conversation</div>
+                        <div class="panelSub">Pose tes besoins librement — “peu importe” accepté</div>
+                    </div>
+
+                    <div class="chat" id="chat"></div>
+
+                    <div class="composer">
+                        <div class="inputBox">
+                            <span class="inputIcon">✦</span>
+                            <input id="q" placeholder="Ex: Je veux un SUV automatique à Casablanca, budget 180k, peu importe carburant…" />
+                        </div>
+                        <button class="btnPrimary" id="sendBtn">Envoyer</button>
+                    </div>
+
+                    <div class="quickReplies" id="quickReplies"></div>
+                </div>
+
+                <!-- Results panel -->
+                <div class="panel resultsPanel">
+                    <div class="panelHead">
+                        <div>
+                            <div class="panelTitle">📌 Résultats & scoring</div>
+                            <div class="panelSub">Classement IA, explications, comparaison</div>
+                        </div>
+
+                        <div class="resultsTools sortWrap">
+                            <button class="sortBtn" id="sortBtn">Sort ▾</button>
+                            <div class="sortMenu" id="sortMenu">
+                                <button class="sortItem active" data-sort="score">Score</button>
+                                <button class="sortItem" data-sort="price">Price</button>
+                                <button class="sortItem" data-sort="year">Year</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resultsSummary" id="resultsSummary">
+                        Aucun résultat pour l’instant. Lance une recherche via le chat.
+                    </div>
+
+                    <div class="resultsList" id="resultsList"></div>
+
+                    <div class="compareBox">
+                        <div class="compareHead">
+                            <div class="compareTitle">⚖️ Comparaison</div>
+                            <div class="compareSub">Sélectionne 2 véhicules</div>
+                        </div>
+                        <div class="compareGrid" id="compareGrid"></div>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- =============== MODALS =============== -->
+<div class="modalOverlay" id="carModal" aria-hidden="true">
+    <div class="modalCard" role="dialog" aria-modal="true">
+        <div class="modalHead">
+            <div class="modalTitle" id="carModalTitle">Détails</div>
+            <button class="iconBtn" id="carModalClose" title="Fermer">✕</button>
+        </div>
+        <div class="modalBody" id="carModalBody"></div>
+    </div>
+</div>
+
+<div class="modalOverlay" id="imgModal" aria-hidden="true">
+    <div class="imgCard" role="dialog" aria-modal="true">
+        <button class="iconBtn imgClose" id="imgModalClose" title="Fermer">✕</button>
+        <img id="imgModalEl" alt="photo"/>
+    </div>
+</div>
+
+<script src="./js/config.js"></script>
+<script src="./js/api.js"></script>
+<script src="./js/store.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/renderer.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>
